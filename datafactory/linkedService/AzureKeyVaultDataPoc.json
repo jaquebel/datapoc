@@ -1,0 +1,10 @@
+{
+	"name": "AzureKeyVaultDataPoc",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://kv-datapoc-dev.vault.azure.net/"
+		}
+	}
+}
