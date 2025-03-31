@@ -1,0 +1,9 @@
+{
+	"name": "IngestionPipeline",
+	"properties": {
+		"folder": {
+			"name": "1-Bronze"
+		},
+		"annotations": []
+	}
+}
