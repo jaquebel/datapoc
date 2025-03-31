@@ -1,0 +1,9 @@
+{
+	"name": "adf-datapoc-dev",
+	"location": "spaincentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "cdd3bffb-44d4-44b6-a56a-c08d46ff407a",
+		"tenantId": "bf397921-409f-4f11-b35d-6e904e789686"
+	}
+}
