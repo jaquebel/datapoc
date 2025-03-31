@@ -1,6 +1,65 @@
 {
 	"name": "IngestionPipeline",
 	"properties": {
+		"activities": [
+			{
+				"name": "Lookup Metadata",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT * FROM dbo.MetadataIngestion where BusinessUnit = ''', pipeline().parameters.business_unit, '''')\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEachElement",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"activities": [
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": []
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"business_unit": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "1-Bronze"
 		},
