@@ -22,7 +22,7 @@ The solution leverages key Azure services:
 - **Azure Data Lake Storage Gen2** for storing data across the layers.
 - **Delta Lake** for the Gold layer, providing ACID transactions and time travel.
 
-![resources](image.png)
+![resources](resources/img/image.png)
 
 ## 2. Resources Deployed
 
@@ -38,27 +38,27 @@ The solution leverages key Azure services:
 
 ### 3.1 End-to-End Orchestration
 
-![Orchestration](image-1.png)
+![Orchestration](resources/img/image-1.png)
 
-The orchestration is managed through ADF pipelines that coordinate the entire data flow from ingestion to final refinement. The process is metadata-driven, allowing dynamic control over which transformation notebooks are executed based on entries in the metadata tables.
+The orchestration is managed through ADF pipelines that coordinate the entire data flow from ingestion to final refinement. The process is metadata-driven, allowing dynamic control over which transformation notebooks are executed based on entries in the metadata tables. In addition, the [dbo.MetadataIngestion](https://github.com/jaquebel/datapoc/blob/main/resources/sql/MetadataIngestion.sql) table is used to capture the details of each data file, and the pipeline is designed to execute all files per Business Unit, with triggers set up accordingly.
 
 - **[Ingestion (Bronze)](https://github.com/jaquebel/datapoc/blob/main/datafactory/pipeline/IngestionPipeline.json):**  
 
-![Bronze](image-2.png)
+![Bronze](resources/img/image-2.png)
 
   Raw data from CSV files and SQL sources is ingested and stored as Parquet files in the Bronze layer. The pipeline supports two different data source types by using a conditional mechanism: if the source is a CSV file, it executes the `CopyCSVToBronze` activity; if the source is a SQL table, it executes the `CopyDatabaseToBronze` activity. This conditional approach ensures that data is ingested in an optimized manner depending on its source type.
 
 - **:[Transformation (Silver)](https://github.com/jaquebel/datapoc/blob/main/datafactory/pipeline/SilverTransformationPipeline.json):**  
 
-![Silver](image-3.png)
+![Silver](resources/img/image-3.png)
 
-  Data is cleansed and enriched. The Silver transformation leverages metadata stored in `dbo.MetadataSilver` to determine which Databricks notebooks to execute. This modular approach allows for both generic transformations (via the **GenericTransformationNotebook**) and unit-specific logic (via the **SalesTransformationNotebook**).
+  Data is cleansed and enriched. The Silver transformation leverages metadata stored in [dbo.MetadataSilver](https://github.com/jaquebel/datapoc/blob/main/resources/sql/MetadataSilver.sql) to determine which Databricks notebooks to execute. This modular approach allows for both generic transformations (via the **GenericTransformationNotebook**) and unit-specific logic (via the **SalesTransformationNotebook**).
 
 - **[Refinement (Gold)](https://github.com/jaquebel/datapoc/blob/main/datafactory/pipeline/RefinementPipeline.json):** 
 
-![Gold](image-4.png) 
+![Gold](resources/img/image-4.png) 
 
-  Data from the Silver layer undergoes further refinement including dynamic data masking. The rules for masking are defined in `dbo.MetadataGold` and enable dynamic, conditional masking based on business rules and user permissions. The final data is written in Delta format, ready for consumption by downstream applications or analytics tools.
+  Data from the Silver layer undergoes further refinement including dynamic data masking. The rules for masking are defined in [dbo.MetadataGold]((https://github.com/jaquebel/datapoc/blob/main/resources/sql/MetadataGold.sql)) and enable dynamic, conditional masking based on business rules and user permissions. The final data is written in Delta format, ready for consumption by downstream applications or analytics tools.
 
 ### 3.2 Metadata-Driven Transformation
 
