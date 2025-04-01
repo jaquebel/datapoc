@@ -3,11 +3,10 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
+				"name": "Lookup Gold Metadata",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
-					"timeout": "0.12:00:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -15,10 +14,84 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT * FROM dbo.MetadataGold WHERE BusinessUnit = ''', pipeline().parameters.business_unit, '''')",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "GenericAzureSqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach Gold Metadata",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup Gold Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup Gold Metadata').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Execute Gold Transformation Notebook",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/GoldNotebooks/GoldTransformationNotebook",
+								"baseParameters": {
+									"business_unit": {
+										"value": "@item().BusinessUnit",
+										"type": "Expression"
+									},
+									"source_path": "silver",
+									"destination_path": "gold",
+									"mask_columns": {
+										"value": "@item().mask_columns",
+										"type": "Expression"
+									},
+									"source_name": {
+										"value": "@item().SourceName",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureDatabricksDatapoc",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
 				}
 			}
 		],
+		"parameters": {
+			"business_unit": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "3-Gold"
 		},
