@@ -1,8 +1,111 @@
 {
-	"name": "BasicTransformationPipeline",
+	"name": "SilverTransformationPipeline",
 	"properties": {
-		"folder": {
-			"name": "2-Silver"
+		"activities": [
+			{
+				"name": "Lookup Metadata",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT * FROM dbo.MetadataSilver WHERE BusinessUnit = ''', pipeline().parameters.business_unit, '''')",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					}
+				}
+			},
+			{
+				"name": "ForEach Metadata",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup Metadata').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "ForEach ExecutionNotebooks",
+							"type": "ForEach",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@split(item().executionnotebooks, ',')",
+									"type": "Expression"
+								},
+								"activities": [
+									{
+										"name": "Execute Notebook",
+										"type": "DatabricksNotebook",
+										"dependsOn": [],
+										"policy": {
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"notebookPath": {
+												"value": "@concat('/SilverNotebooks/', item())",
+												"type": "Expression"
+											},
+											"baseParameters": {
+												"business_unit": {
+													"value": "@item().BusinessUnit",
+													"type": "Expression"
+												},
+												"source_path": {
+													"value": "@pipeline().parameters.source_path",
+													"type": "Expression"
+												},
+												"destination_path": {
+													"value": "@pipeline().parameters.destination_path",
+													"type": "Expression"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "AzureDatabricksDatapoc",
+											"type": "LinkedServiceReference"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"business_unit": {
+				"type": "string"
+			},
+			"source_path": {
+				"type": "string"
+			},
+			"destination_path": {
+				"type": "string"
+			}
 		},
 		"annotations": []
 	}
