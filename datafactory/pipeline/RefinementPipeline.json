@@ -17,7 +17,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('SELECT * FROM dbo.MetadataGold WHERE BusinessUnit = ''', pipeline().parameters.business_unit, ''' and SourceName = ''',pipeline().parameters.source_name,''''')",
+							"value": "@concat('SELECT * FROM dbo.MetadataGold WHERE BusinessUnit = ''', pipeline().parameters.business_unit, ''' and SourceName = ''',pipeline().parameters.source_name,'''')",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
