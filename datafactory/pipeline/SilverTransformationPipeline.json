@@ -25,7 +25,8 @@
 					"dataset": {
 						"referenceName": "GenericAzureSqlTable",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			},
 			{
@@ -42,58 +43,43 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Lookup Metadata').output.value",
+						"value": "@activity('Lookup Metadata').output.value\n",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
-							"name": "ForEach ExecutionNotebooks",
-							"type": "ForEach",
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
 							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"items": {
-									"value": "@split(item().executionnotebooks, ',')",
-									"type": "Expression"
+								"pipeline": {
+									"referenceName": "ExecuteSilverNotebookPipeline",
+									"type": "PipelineReference"
 								},
-								"activities": [
-									{
-										"name": "Execute Notebook",
-										"type": "DatabricksNotebook",
-										"dependsOn": [],
-										"policy": {
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"notebookPath": {
-												"value": "@concat('/SilverNotebooks/', item())",
-												"type": "Expression"
-											},
-											"baseParameters": {
-												"business_unit": {
-													"value": "@item().BusinessUnit",
-													"type": "Expression"
-												},
-												"source_path": {
-													"value": "@concat('/bronze/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
-													"type": "Expression"
-												},
-												"destination_path": {
-													"value": "@concat('/silver/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
-													"type": "Expression"
-												}
-											}
-										},
-										"linkedServiceName": {
-											"referenceName": "AzureDatabricksDatapoc",
-											"type": "LinkedServiceReference"
-										}
+								"waitOnCompletion": true,
+								"parameters": {
+									"business_unit": {
+										"value": "@item().BusinessUnit",
+										"type": "Expression"
+									},
+									"source_path": {
+										"value": "@concat('/bronze/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
+										"type": "Expression"
+									},
+									"destination_path": {
+										"value": "@concat('/silver/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
+										"type": "Expression"
+									},
+									"execution_notebooks": {
+										"value": "@item().executionnotebooks",
+										"type": "Expression"
 									}
-								]
+								}
 							}
 						}
 					]
@@ -102,14 +88,12 @@
 		],
 		"parameters": {
 			"business_unit": {
-				"type": "string"
-			},
-			"source_path": {
-				"type": "string"
-			},
-			"destination_path": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Sales"
 			}
+		},
+		"folder": {
+			"name": "2-Silver"
 		},
 		"annotations": []
 	}
