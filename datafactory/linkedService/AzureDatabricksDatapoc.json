@@ -1,0 +1,17 @@
+{
+	"name": "AzureDatabricksDatapoc",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-2090894827070458.18.azuredatabricks.net",
+			"authentication": "MSI",
+			"workspaceResourceId": "/subscriptions/d9c84dc7-e238-4d3f-9a30-af5b7c3bb20e/resourceGroups/rg-dataplatform-dev/providers/Microsoft.Databricks/workspaces/dbw-datapoc-dev",
+			"newClusterNodeType": "Standard_DS3_v2",
+			"newClusterNumOfWorker": "1",
+			"newClusterVersion": "11.3.x-scala2.12",
+			"clusterOption": "Fixed",
+			"newClusterInitScripts": []
+		}
+	}
+}
