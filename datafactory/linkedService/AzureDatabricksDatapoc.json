@@ -7,7 +7,7 @@
 			"domain": "https://adb-2090894827070458.18.azuredatabricks.net",
 			"authentication": "MSI",
 			"workspaceResourceId": "/subscriptions/d9c84dc7-e238-4d3f-9a30-af5b7c3bb20e/resourceGroups/rg-dataplatform-dev/providers/Microsoft.Databricks/workspaces/dbw-datapoc-dev",
-			"existingClusterId": "0401-141553-jic20awf"
+			"existingClusterId": "0401-141844-mxgm72gw"
 		}
 	}
 }
