@@ -25,7 +25,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureSqlTable1",
+						"referenceName": "GenericAzureSqlTable",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
@@ -113,7 +113,7 @@
 										},
 										"inputs": [
 											{
-												"referenceName": "DelimitedTextCSV",
+												"referenceName": "GenericDelimitedTextCSV",
 												"type": "DatasetReference"
 											}
 										],
@@ -180,7 +180,7 @@
 										},
 										"inputs": [
 											{
-												"referenceName": "AzureSqlTable1",
+												"referenceName": "GenericAzureSqlTable",
 												"type": "DatasetReference"
 											}
 										],

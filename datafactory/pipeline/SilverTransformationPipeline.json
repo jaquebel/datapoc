@@ -21,6 +21,10 @@
 							"type": "Expression"
 						},
 						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "GenericAzureSqlTable",
+						"type": "DatasetReference"
 					}
 				}
 			},
@@ -75,11 +79,11 @@
 													"type": "Expression"
 												},
 												"source_path": {
-													"value": "@pipeline().parameters.source_path",
+													"value": "@concat('/bronze/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
 													"type": "Expression"
 												},
 												"destination_path": {
-													"value": "@pipeline().parameters.destination_path",
+													"value": "@concat('/silver/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
 													"type": "Expression"
 												}
 											}

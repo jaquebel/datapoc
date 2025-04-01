@@ -1,5 +1,5 @@
 {
-	"name": "DelimitedTextCSV",
+	"name": "GenericDelimitedTextCSV",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
