@@ -17,41 +17,6 @@
 						{
 							"name": "Execute Notebook",
 							"type": "DatabricksNotebook",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
-							"dependsOn": [],
-							"policy": {
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"notebookPath": "/SilverNotebooks/GenericTransformationNotebook",
-								"baseParameters": {
-									"business_unit": {
-										"value": "@pipeline().parameters.business_unit",
-										"type": "Expression"
-									},
-									"source_path": {
-										"value": "@pipeline().parameters.source_path",
-										"type": "Expression"
-									},
-									"destination_path": {
-										"value": "@pipeline().parameters.destination_path",
-										"type": "Expression"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "AzureDatabricksDatapoc",
-								"type": "LinkedServiceReference"
-							}
-						},
-						{
-							"name": "Execute Notebook_copy1",
-							"type": "DatabricksNotebook",
 							"dependsOn": [],
 							"policy": {
 								"retry": 0,
@@ -70,12 +35,10 @@
 										"value": "@pipeline().parameters.business_unit",
 										"type": "Expression"
 									},
-									"source_path": {
-										"value": "@pipeline().parameters.source_path",
-										"type": "Expression"
-									},
-									"destination_path": {
-										"value": "@pipeline().parameters.destination_path",
+									"source_path": "bronze",
+									"destination_path": "silver",
+									"source_name": {
+										"value": "@pipeline().parameters.source_name",
 										"type": "Expression"
 									}
 								}
@@ -93,13 +56,10 @@
 			"business_unit": {
 				"type": "string"
 			},
-			"source_path": {
-				"type": "string"
-			},
-			"destination_path": {
-				"type": "string"
-			},
 			"execution_notebooks": {
+				"type": "string"
+			},
+			"source_name": {
 				"type": "string"
 			}
 		},

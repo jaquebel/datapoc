@@ -49,7 +49,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Execute Pipeline1",
+							"name": "Execute Silver Notebook",
 							"type": "ExecutePipeline",
 							"dependsOn": [],
 							"policy": {
@@ -67,16 +67,12 @@
 										"value": "@item().BusinessUnit",
 										"type": "Expression"
 									},
-									"source_path": {
-										"value": "@concat('/bronze/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
-										"type": "Expression"
-									},
-									"destination_path": {
-										"value": "@concat('/silver/',item().BusinessUnit,'/',item().SourceName,'.parquet')",
-										"type": "Expression"
-									},
 									"execution_notebooks": {
 										"value": "@item().executionnotebooks",
+										"type": "Expression"
+									},
+									"source_name": {
+										"value": "@item().SourceName",
 										"type": "Expression"
 									}
 								}
