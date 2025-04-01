@@ -97,6 +97,10 @@
 									"business_unit": {
 										"value": "@item().BusinessUnit\n",
 										"type": "Expression"
+									},
+									"source_name": {
+										"value": "@item().SourceName",
+										"type": "Expression"
 									}
 								}
 							}
@@ -125,6 +129,10 @@
 								"parameters": {
 									"business_unit": {
 										"value": "@item().BusinessUnit\n",
+										"type": "Expression"
+									},
+									"source_name": {
+										"value": "@item().SourceName",
 										"type": "Expression"
 									}
 								}

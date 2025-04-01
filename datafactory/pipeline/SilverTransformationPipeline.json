@@ -17,7 +17,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('SELECT * FROM dbo.MetadataSilver WHERE BusinessUnit = ''', pipeline().parameters.business_unit, '''')",
+							"value": "@concat('SELECT * FROM dbo.MetadataSilver WHERE BusinessUnit = ''', pipeline().parameters.business_unit, ''' and SourceName = ''',pipeline().parameters.source_name,'''')",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -84,8 +84,10 @@
 		],
 		"parameters": {
 			"business_unit": {
-				"type": "string",
-				"defaultValue": "Sales"
+				"type": "string"
+			},
+			"source_name": {
+				"type": "string"
 			}
 		},
 		"folder": {

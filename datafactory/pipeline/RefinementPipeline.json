@@ -17,7 +17,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('SELECT * FROM dbo.MetadataGold WHERE BusinessUnit = ''', pipeline().parameters.business_unit, '''')",
+							"value": "@concat('SELECT * FROM dbo.MetadataGold WHERE BusinessUnit = ''', pipeline().parameters.business_unit, ''' and SourceName = ''',pipeline().parameters.source_name,''''')",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -30,8 +30,8 @@
 				}
 			},
 			{
-				"name": "ForEach Gold Metadata",
-				"type": "ForEach",
+				"name": "Execute Gold Transformation Notebook_copy1",
+				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
 						"activity": "Lookup Gold Metadata",
@@ -40,55 +40,43 @@
 						]
 					}
 				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"items": {
-						"value": "@activity('Lookup Gold Metadata').output.value",
-						"type": "Expression"
-					},
-					"isSequential": true,
-					"activities": [
-						{
-							"name": "Execute Gold Transformation Notebook",
-							"type": "DatabricksNotebook",
-							"dependsOn": [],
-							"policy": {
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"notebookPath": "/Datapoc/databricks/databricks/GoldNotebooks/GoldTransformationNotebook",
-								"baseParameters": {
-									"business_unit": {
-										"value": "@item().BusinessUnit",
-										"type": "Expression"
-									},
-									"source_path": "silver",
-									"destination_path": "gold",
-									"mask_columns": {
-										"value": "@item().mask_columns",
-										"type": "Expression"
-									},
-									"source_name": {
-										"value": "@item().SourceName",
-										"type": "Expression"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "AzureDatabricksDatapoc",
-								"type": "LinkedServiceReference"
-							}
+					"notebookPath": "/Datapoc/databricks/databricks/GoldNotebooks/GoldTransformationNotebook",
+					"baseParameters": {
+						"business_unit": {
+							"value": "@item().BusinessUnit",
+							"type": "Expression"
+						},
+						"source_path": "silver",
+						"destination_path": "gold",
+						"mask_columns": {
+							"value": "@item().mask_columns",
+							"type": "Expression"
+						},
+						"source_name": {
+							"value": "@item().SourceName",
+							"type": "Expression"
 						}
-					]
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricksDatapoc",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
 		"parameters": {
 			"business_unit": {
+				"type": "string"
+			},
+			"source_name": {
 				"type": "string"
 			}
 		},
