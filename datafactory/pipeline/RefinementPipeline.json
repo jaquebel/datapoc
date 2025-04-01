@@ -60,7 +60,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/GoldNotebooks/GoldTransformationNotebook",
+								"notebookPath": "/Datapoc/databricks/databricks/GoldNotebooks/GoldTransformationNotebook",
 								"baseParameters": {
 									"business_unit": {
 										"value": "@item().BusinessUnit",

@@ -3,64 +3,142 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Execute IngestionPipeline",
-				"type": "ExecutePipeline",
+				"name": "Lookup Metadata",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "IngestionPipeline",
-						"type": "PipelineReference"
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT * FROM dbo.MetadataIngestion where BusinessUnit = ''', pipeline().parameters.business_unit, '''')\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
 					},
-					"waitOnCompletion": true
+					"dataset": {
+						"referenceName": "GenericAzureSqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
 				}
 			},
 			{
-				"name": "Execute BasicTransformationPipeline",
-				"type": "ExecutePipeline",
+				"name": "ForEach Sources",
+				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Execute IngestionPipeline",
+						"activity": "Lookup Metadata",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
-				"policy": {
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "SilverTransformationPipeline",
-						"type": "PipelineReference"
+					"items": {
+						"value": "@activity('Lookup Metadata').output.value\n",
+						"type": "Expression"
 					},
-					"waitOnCompletion": true
-				}
-			},
-			{
-				"name": "Execute RefinementPipeline",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Execute BasicTransformationPipeline",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"waitOnCompletion": true
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Execute IngestionPipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "IngestionPipeline",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"source": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Execute BasicTransformationPipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Execute IngestionPipeline",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "SilverTransformationPipeline",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"business_unit": {
+										"value": "@item().BusinessUnit\n",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Execute RefinementPipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Execute BasicTransformationPipeline",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "RefinementPipeline",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"business_unit": {
+										"value": "@item().BusinessUnit\n",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
 				}
 			}
 		],
+		"parameters": {
+			"business_unit": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "Orchestration"
 		},

@@ -3,215 +3,165 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup Metadata",
-				"type": "Lookup",
+				"name": "If Condition1",
+				"type": "IfCondition",
 				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "@concat('SELECT * FROM dbo.MetadataIngestion where BusinessUnit = ''', pipeline().parameters.business_unit, '''')\n",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"dataset": {
-						"referenceName": "GenericAzureSqlTable",
-						"type": "DatasetReference"
-					},
-					"firstRowOnly": false
-				}
-			},
-			{
-				"name": "ForEach Sources",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "Lookup Metadata",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('Lookup Metadata').output.value\n",
+					"expression": {
+						"value": "@equals(pipeline().parameters.source.SourceType, 'Database')",
 						"type": "Expression"
 					},
-					"activities": [
+					"ifFalseActivities": [
 						{
-							"name": "If Condition1",
-							"type": "IfCondition",
+							"name": "CopyCSVToBronze",
+							"type": "Copy",
 							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"expression": {
-									"value": "@equals(item().SourceType, 'Database')",
-									"type": "Expression"
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"wildcardFolderPath": {
+											"value": "@pipeline().parameters.source.SourceSchema",
+											"type": "Expression"
+										},
+										"wildcardFileName": {
+											"value": "@concat(pipeline().parameters.source.SourceName,'.csv')",
+											"type": "Expression"
+										},
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
 								},
-								"ifFalseActivities": [
-									{
-										"name": "CopyCSVToBronze",
-										"type": "Copy",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "DelimitedTextSource",
-												"storeSettings": {
-													"type": "AzureBlobFSReadSettings",
-													"recursive": true,
-													"wildcardFolderPath": {
-														"value": "@item().SourceSchema",
-														"type": "Expression"
-													},
-													"wildcardFileName": {
-														"value": "@concat(item().SourceName,'.csv')",
-														"type": "Expression"
-													},
-													"enablePartitionDiscovery": false
-												},
-												"formatSettings": {
-													"type": "DelimitedTextReadSettings"
-												}
-											},
-											"sink": {
-												"type": "ParquetSink",
-												"storeSettings": {
-													"type": "AzureBlobFSWriteSettings"
-												},
-												"formatSettings": {
-													"type": "ParquetWriteSettings"
-												}
-											},
-											"enableStaging": false,
-											"translator": {
-												"type": "TabularTranslator",
-												"typeConversion": true,
-												"typeConversionSettings": {
-													"allowDataTruncation": true,
-													"treatBooleanAsNumber": false
-												}
-											}
-										},
-										"inputs": [
-											{
-												"referenceName": "GenericDelimitedTextCSV",
-												"type": "DatasetReference"
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "GenericParquet",
-												"type": "DatasetReference",
-												"parameters": {
-													"fs": "bronze",
-													"file": {
-														"value": "@concat(\n  item().SourceName, \n  '.parquet'\n)\n",
-														"type": "Expression"
-													},
-													"directory": {
-														"value": "@item().BusinessUnit",
-														"type": "Expression"
-													}
-												}
-											}
-										]
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
 									}
-								],
-								"ifTrueActivities": [
-									{
-										"name": "CopyDatabaseToBronze",
-										"type": "Copy",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "AzureSqlSource",
-												"sqlReaderQuery": {
-													"value": "@concat('SELECT * FROM [', item().SourceSchema, '].[', item().SourceName, ']')\n",
-													"type": "Expression"
-												},
-												"queryTimeout": "02:00:00",
-												"partitionOption": "None"
-											},
-											"sink": {
-												"type": "ParquetSink",
-												"storeSettings": {
-													"type": "AzureBlobFSWriteSettings"
-												},
-												"formatSettings": {
-													"type": "ParquetWriteSettings"
-												}
-											},
-											"enableStaging": false,
-											"translator": {
-												"type": "TabularTranslator",
-												"typeConversion": true,
-												"typeConversionSettings": {
-													"allowDataTruncation": true,
-													"treatBooleanAsNumber": false
-												}
-											}
-										},
-										"inputs": [
-											{
-												"referenceName": "GenericAzureSqlTable",
-												"type": "DatasetReference"
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "GenericParquet",
-												"type": "DatasetReference",
-												"parameters": {
-													"fs": "bronze",
-													"file": {
-														"value": "@concat(\n  item().SourceName,\n  '.parquet'\n)\n",
-														"type": "Expression"
-													},
-													"directory": {
-														"value": "@item().BusinessUnit",
-														"type": "Expression"
-													}
-												}
-											}
-										]
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
 									}
-								]
-							}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "GenericDelimitedTextCSV",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "GenericParquet",
+									"type": "DatasetReference",
+									"parameters": {
+										"fs": "bronze",
+										"file": {
+											"value": "@concat(\n  pipeline().parameters.source.SourceName, \n  '.parquet'\n)",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.source.BusinessUnit",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "CopyDatabaseToBronze",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@concat('SELECT * FROM [', pipeline().parameters.source.SourceSchema, '].[', pipeline().parameters.source.SourceName, ']')",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "GenericAzureSqlTable",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "GenericParquet",
+									"type": "DatasetReference",
+									"parameters": {
+										"fs": "bronze",
+										"file": {
+											"value": "@concat(\n  pipeline().parameters.source.SourceName,\n  '.parquet'\n)",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.source.BusinessUnit",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
 			}
 		],
 		"parameters": {
-			"business_unit": {
-				"type": "string"
+			"source": {
+				"type": "object"
 			}
 		},
 		"folder": {

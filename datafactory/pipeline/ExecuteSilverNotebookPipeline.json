@@ -27,7 +27,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"notebookPath": {
-									"value": "@concat('/SilverNotebooks/', item())",
+									"value": "@concat('/Datapoc/databricks/databricks/SilverNotebooks/', item())",
 									"type": "Expression"
 								},
 								"baseParameters": {
