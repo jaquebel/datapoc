@@ -77,6 +77,36 @@
 									}
 								}
 							}
+						},
+						{
+							"name": "Execute Silver Notebook_copy1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "ExecuteSilverNotebookPipeline",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"business_unit": {
+										"value": "@item().BusinessUnit",
+										"type": "Expression"
+									},
+									"execution_notebooks": {
+										"value": "@item().executionnotebooks",
+										"type": "Expression"
+									},
+									"source_name": {
+										"value": "@item().SourceName",
+										"type": "Expression"
+									}
+								}
+							}
 						}
 					]
 				}

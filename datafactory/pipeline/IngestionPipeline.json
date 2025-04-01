@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "If Condition1",
+				"name": "If Source is Database",
 				"type": "IfCondition",
 				"dependsOn": [],
 				"userProperties": [],

@@ -30,7 +30,7 @@
 				}
 			},
 			{
-				"name": "Execute Gold Transformation Notebook_copy1",
+				"name": "Execute Gold Transformation Notebook",
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
