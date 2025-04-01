@@ -51,17 +51,17 @@
 					"notebookPath": "/Datapoc/databricks/databricks/GoldNotebooks/GoldTransformationNotebook",
 					"baseParameters": {
 						"business_unit": {
-							"value": "@item().BusinessUnit",
+							"value": "@pipeline().parameters.business_unit",
 							"type": "Expression"
 						},
 						"source_path": "silver",
 						"destination_path": "gold",
 						"mask_columns": {
-							"value": "@item().mask_columns",
+							"value": "@activity('Lookup Gold Metadata').output.value[0].mask_columns",
 							"type": "Expression"
 						},
 						"source_name": {
-							"value": "@item().SourceName",
+							"value": "@pipeline().parameters.source_name",
 							"type": "Expression"
 						}
 					}
